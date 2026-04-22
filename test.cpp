@@ -2,34 +2,48 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <ctime>   // Pentru time()
+#include <cstdlib> // Pentru rand() si srand()
 
 using namespace std;
 
-// Definim directiile pentru claritate
 enum Directie { NORD = 0, EST = 1, SUD = 2, VEST = 3 };
 
 struct Masina {
     int id;
     string numeDirectie;
-    int codDirectie;
 };
 
-string getNumeDirectie(int optiune) {
-    switch(optiune) {
-        case 0: return "Nord";
-        case 1: return "Est";
-        case 2: return "Sud";
-        case 3: return "Vest";
-        default: return "Necunoscut";
+// Functie pentru a genera semne rutiere aleatorii
+void genereazaSemneRutiere() {
+    string semne[] = {
+        "Circulatie Normala", 
+        "Drum in Lucru (Viteza Redusa)", 
+        "Atentie: Polei!", 
+        "Prioritate pentru Transport Public"
+    };
+    string directii[] = {"Nord", "Est", "Sud", "Vest"};
+
+    cout << "=== CONDITII RUTIERE GENERATE ===\n";
+    for(int i = 0; i < 4; i++) {
+        int r = rand() % 4; // Alege un semn la intamplare din cele 4 de mai sus
+        cout << "Directia " << directii[i] << ": " << semne[r] << endl;
     }
+    cout << "=================================\n\n";
 }
 
 int main() {
+    // Initializam generatorul de numere aleatorii cu timpul curent
+    srand(static_cast<unsigned int>(time(0)));
+
+    // Pasul 1: Afisam semnele rutiere inainte de orice
+    genereazaSemneRutiere();
+
+    // Pasul 2: Introducere date de la utilizator
     int nrMasini;
     vector<queue<Masina>> benzi(4);
     vector<int> ordineaTrecerii;
 
-    cout << "=== SIMULARE INTERSECTIE C++ ===\n";
     cout << "Introduceti numarul total de masini: ";
     cin >> nrMasini;
 
@@ -39,66 +53,48 @@ int main() {
         cin >> opt;
         
         if (opt < 0 || opt > 3) {
-            cout << "Directie invalida! Incercati din nou.\n";
+            cout << "Directie invalida! Reincercati.\n";
             i--;
             continue;
         }
 
-        Masina m = {i + 1, getNumeDirectie(opt), opt};
-        benzi[opt].push(m);
+        string numeDir = (opt == 0) ? "Nord" : (opt == 1) ? "Est" : (opt == 2) ? "Sud" : "Vest";
+        benzi[opt].push({i + 1, numeDir});
     }
 
-    cout << "\n--- PROCESARE TRAFIC (Regula de Dreapta & Semafoare) ---\n";
-    
-    // Simulam ciclurile semaforului pana cand toate benzile sunt goale
-    // Ciclul 1: Nord si Sud au Verde | Ciclul 2: Est si Vest au Verde
-    int fazaSemafor = 0; // 0 pentru N-S, 1 pentru E-V
-
+    // Pasul 3: Logica de semaforizare (N-S apoi E-V)
+    int faza = 0; 
     while (!(benzi[0].empty() && benzi[1].empty() && benzi[2].empty() && benzi[3].empty())) {
-        bool aMiscatCineva = false;
-
-        if (fazaSemafor == 0) {
-            cout << "\n[SEMAFOR] VERDE pentru axa NORD-SUD\n";
-            // Procesam Nord si Sud
-            int axe[] = {0, 2}; // NORD si SUD
-            for (int dir : axe) {
-                while (!benzi[dir].empty()) {
-                    // Verificam regula de dreapta: 
-                    // Daca suntem la Nord (0), dreapta este Est (1). 
-                    // Daca Estul are masina, Nordul asteapta (daca ar fi nesemaforizat), 
-                    // dar aici semaforul Est-Vest este ROSU, deci Nord poate trece.
-                    Masina m = benzi[dir].front();
-                    cout << " >> Masina " << m.id << " a plecat de la " << m.numeDirectie << endl;
-                    ordineaTrecerii.push_back(m.id);
-                    benzi[dir].pop();
-                    aMiscatCineva = true;
+        if (faza == 0) {
+            cout << "\n[SEMAFOR] VERDE: NORD si SUD\n";
+            int axe[] = {0, 2};
+            for (int d : axe) {
+                while(!benzi[d].empty()){
+                    cout << " >> Masina " << benzi[d].front().id << " a plecat din " << benzi[d].front().numeDirectie << endl;
+                    ordineaTrecerii.push_back(benzi[d].front().id);
+                    benzi[d].pop();
                 }
             }
-            fazaSemafor = 1; // Schimbam faza
+            faza = 1;
         } else {
-            cout << "\n[SEMAFOR] VERDE pentru axa EST-VEST\n";
-            // Procesam Est si Vest
-            int axe[] = {1, 3}; // EST si VEST
-            for (int dir : axe) {
-                while (!benzi[dir].empty()) {
-                    Masina m = benzi[dir].front();
-                    cout << " >> Masina " << m.id << " a plecat de la " << m.numeDirectie << endl;
-                    ordineaTrecerii.push_back(m.id);
-                    benzi[dir].pop();
-                    aMiscatCineva = true;
+            cout << "\n[SEMAFOR] VERDE: EST si VEST\n";
+            int axe[] = {1, 3};
+            for (int d : axe) {
+                while(!benzi[d].empty()){
+                    cout << " >> Masina " << benzi[d].front().id << " a plecat din " << benzi[d].front().numeDirectie << endl;
+                    ordineaTrecerii.push_back(benzi[d].front().id);
+                    benzi[d].pop();
                 }
             }
-            fazaSemafor = 0; // Schimbam faza
+            faza = 0;
         }
     }
 
-    // Rezultat Final
-    cout << "\n====================================\n";
-    cout << "ORDINEA FINALA A TRECERII: ";
-    for (int i = 0; i < ordineaTrecerii.size(); i++) {
+    cout << "\nORDINE FINALA: ";
+    for (size_t i = 0; i < ordineaTrecerii.size(); i++) {
         cout << ordineaTrecerii[i] << (i == ordineaTrecerii.size() - 1 ? "" : " -> ");
     }
-    cout << "\n====================================\n";
+    cout << endl;
 
     return 0;
 }
