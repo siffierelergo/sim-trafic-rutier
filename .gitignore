@@ -1,0 +1,31 @@
+# Executabile compilate (Windows, Linux, macOS)
+*.exe
+*.out
+*.app
+simulare_trafic
+
+# Fișiere obiect și biblioteci
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+
+# Directoare generate de IDE-uri (Visual Studio, VS Code, CLion)
+.vscode/
+.vs/
+bin/
+obj/
+out/
+build/
+*.user
+*.suo
+*.db
+*.opendb
+
+# Backup-uri și fișiere temporare
+*.bak
+*.swp
+*~
+.DS_Store
