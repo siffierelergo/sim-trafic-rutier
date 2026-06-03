@@ -6,8 +6,10 @@
 #include <memory>
 #include <fstream>
 #include <algorithm>
+#include <cstdlib>
 
-// --- FACULTATIV: PATTERN OBSERVER PENTRU LOGGING ---
+enum SemnRutier { DRUM_CU_PRIORITATE = 0, CEDEAZA_TRECEREA = 1, STOP = 2 };
+
 class IObserver {
 public:
     virtual void peEveniment(const std::string& eveniment) = 0;
@@ -22,10 +24,9 @@ public:
     LoggerTrafic() {
         fisierLog.open("trafic_log.txt", std::ios::app);
         fisierCSV.open("statistici_trafic.csv", std::ios::app);
-        // Headere CSV dacă e gol
         std::ifstream test("statistici_trafic.csv");
         if (test.peek() == std::ifstream::traits_type::eof()) {
-            fisierCSV << "Eveniment,Mesaj\n";
+            fisierCSV << "Iteratie,Eveniment,Mesaj\n";
         }
     }
     ~LoggerTrafic() {
@@ -33,106 +34,147 @@ public:
         if (fisierCSV.is_open()) fisierCSV.close();
     }
     void peEveniment(const std::string& eveniment) override {
-        std::cout << eveniment << "\n"; // Afisare consola
-        if (fisierLog.is_open()) fisierLog << eveniment << "\n"; // Salvare text
-        if (fisierCSV.is_open()) fisierCSV << "Eveniment,\"" << eveniment << "\"\n"; // Export CSV
+        if (fisierLog.is_open()) fisierLog << eveniment << "\n"; 
+        if (fisierCSV.is_open()) fisierCSV << eveniment << "\n"; 
     }
 };
 
-// --- COMPOZITIE: INTERSECTIE ---
-class Intersectie {
-private:
-    bool semafoare[4]; // N, E, S, V
-
-public:
-    Intersectie() {
-        semafoare[NORD] = true;  semafoare[SUD] = true;
-        semafoare[EST] = false; semafoare[VEST] = false;
-    }
-
-    void schimbaSemafoare() {
-        semafoare[NORD] = !semafoare[NORD];
-        semafoare[SUD] = !semafoare[SUD];
-        semafoare[EST] = !semafoare[EST];
-        semafoare[VEST] = !semafoare[VEST];
-    }
-
-    bool esteVerde(Directie dir) const { return semafoare[dir]; }
-};
-
-// --- COMPOZITIE: STRADA ---
 class Strada {
 private:
     std::string nume;
     std::vector<std::shared_ptr<Vehicul>> vehicule;
+    SemnRutier semnCurent;
 
 public:
-    Strada(std::string nume) : nume(nume) {}
+    Strada(std::string nume) : nume(nume), semnCurent(CEDEAZA_TRECEREA) {}
     void adaugaVehicul(std::shared_ptr<Vehicul> v) { vehicule.push_back(v); }
     std::vector<std::shared_ptr<Vehicul>>& getVehicule() { return vehicule; }
-    std::string getNume() const { return nume; }
+    void goleste() { vehicule.clear(); }
+    
+    void setSemn(SemnRutier s) { semnCurent = s; }
+    SemnRutier getSemn() const { return semnCurent; }
+    
+    std::string getSemnString() const {
+        if (semnCurent == DRUM_CU_PRIORITATE) return "PRIORITATE";
+        if (semnCurent == CEDEAZA_TRECEREA) return "CEDEAZA";
+        return "STOP";
+    }
 };
 
-// --- COMPOZITIE: RETEA RUTIERA (Clasa principala) ---
 class ReteaRutiera {
 private:
-    std::vector<Strada> strazi;
-    Intersectie intersectie;
+    std::vector<Strada> strazi; 
     std::vector<IObserver*> observeri;
 
 public:
     ReteaRutiera() {
-        strazi.push_back(Strada("Axa Nord-Sud"));
-        strazi.push_back(Strada("Axa Est-Vest"));
+        strazi.push_back(Strada("Nord"));
+        strazi.push_back(Strada("Est"));
+        strazi.push_back(Strada("Sud"));
+        strazi.push_back(Strada("Vest"));
     }
 
     void ataseazaObserver(IObserver* obs) { observeri.push_back(obs); }
-    
-    void notifica(const std::string& mesaj) {
-        for (auto obs : observeri) obs->peEveniment(mesaj);
+    void notifica(int iteratie, const std::string& actiune, const std::string& detalii) {
+        std::string csvFormat = std::to_string(iteratie) + ",\"" + actiune + "\",\"" + detalii + "\"";
+        for (auto obs : observeri) obs->peEveniment(csvFormat);
     }
 
-    Intersectie& getIntersectie() { return intersectie; }
     std::vector<Strada>& getStrazi() { return strazi; }
+    void golesteToateStrazile() { for (auto& s : strazi) s.goleste(); }
 
-    void actualizeazaSimulare() {
-        // Verificare coliziuni si deplasare
-        std::vector<std::shared_ptr<Vehicul>> toate;
-        for (auto& strada : strazi) {
-            for (auto& v : strada.getVehicule()) toate.push_back(v);
+    void genereazaSemneAleatorii() {
+        for (int i = 0; i < 4; i++) {
+            SemnRutier s = static_cast<SemnRutier>(rand() % 3);
+            strazi[i].setSemn(s);
         }
+    }
 
-        // Verificare coliziuni (cerinta obligatorie logare)
-        for (size_t i = 0; i < toate.size(); i++) {
-            for (size_t j = i + 1; j < toate.size(); j++) {
-                if (toate[i]->getX() == toate[j]->getX() && toate[i]->getY() == toate[j]->getY()) {
-                    notifica("[COLIZIUNE CRITICA] Vehiculul " + std::to_string(toate[i]->getId()) + 
-                             " s-a ciocnit cu " + std::to_string(toate[j]->getId()) + "!");
+    bool areVehiculeActive() {
+        for (auto& s : strazi) if (!s.getVehicule().empty()) return true;
+        return false;
+    }
+
+    // Verifica daca in acest moment coordonata (x,y) este blocata de alta masina
+    bool pozitieOcupata(int x, int y) {
+        for (auto& s : strazi) {
+            for (auto& v : s.getVehicule()) {
+                if (v->getX() == x && v->getY() == y) return true;
+            }
+        }
+        return false;
+    }
+
+    void actualizeazaCadru(int iteratie, std::vector<int>& ordineaTrecerii, bool permiteTrecereNoua) {
+        std::vector<std::shared_ptr<Vehicul>> masiniLaStop;
+        
+        for (auto& s : strazi) {
+            for (auto& v : s.getVehicule()) {
+                if ((v->getX() == 9  && v->getY() == 8  && v->getDirectie() == NORD) ||
+                    (v->getX() == 10 && v->getY() == 11 && v->getDirectie() == SUD) ||
+                    (v->getX() == 11 && v->getY() == 9  && v->getDirectie() == EST) ||
+                    (v->getX() == 8  && v->getY() == 10 && v->getDirectie() == VEST)) {
+                    masiniLaStop.push_back(v);
                 }
             }
         }
 
-        // Deplasare logica cu respectarea regulilor de circulatie
-        for (auto& v : toate) {
-            bool poateInainta = true;
-            
-            // Simulam zona de intersectie la coordonatele (10, 10)
-            if (v->getX() == 10 && v->getY() == 9 && v->getDirectie() == SUD && !intersectie.esteVerde(SUD)) poateInainta = false;
-            if (v->getX() == 10 && v->getY() == 11 && v->getDirectie() == NORD && !intersectie.esteVerde(NORD)) poateInainta = false;
-            if (v->getX() == 9 && v->getY() == 10 && v->getDirectie() == EST && !intersectie.esteVerde(EST)) poateInainta = false;
-            if (v->getX() == 11 && v->getY() == 10 && v->getDirectie() == VEST && !intersectie.esteVerde(VEST)) poateInainta = false;
-
-            if (poateInainta) {
-                int vechiX = v->getX(), vechiY = v->getY();
-                v->deplaseaza();
-                // Logare intrare/iesire din intersectie
-                if (v->getX() == 10 && v->getY() == 10) {
-                    notifica("[INTRARE INTERSECTIE] " + v->getTip() + " " + std::to_string(v->getId()) + " a intrat in intersectie.");
-                } else if (vechiX == 10 && vechiY == 10) {
-                    notifica("[IESIRE INTERSECTIE] " + v->getTip() + " " + std::to_string(v->getId()) + " a parasit intersectie.");
+        std::shared_ptr<Vehicul> celCareTrece = nullptr;
+        bool intersectieOcupata = pozitieOcupata(9, 9) || pozitieOcupata(9, 10) || pozitieOcupata(10, 9) || pozitieOcupata(10, 10);
+        if (permiteTrecereNoua && !masiniLaStop.empty() && !intersectieOcupata) {
+            for (auto& v : masiniLaStop) {
+                if (strazi[v->getDirectie()].getSemn() == DRUM_CU_PRIORITATE) {
+                    celCareTrece = v;
+                    break;
                 }
-            } else {
-                v->reactioneazaLaIntersectie(false);
+            }
+            if (celCareTrece == nullptr) celCareTrece = masiniLaStop.front(); 
+        }
+
+        for (int i = 0; i < 4; i++) {
+            auto& vehicule = strazi[i].getVehicule();
+            for (auto it = vehicule.begin(); it != vehicule.end(); ) {
+                auto& v = *it;
+                int nextX = v->getX();
+                int nextY = v->getY();
+
+                if (v->getDirectie() == NORD) nextY++;
+                else if (v->getDirectie() == SUD) nextY--;
+                else if (v->getDirectie() == EST) nextX--;
+                else if (v->getDirectie() == VEST) nextX++;
+
+                bool eLaLiniaDeStop = (v->getX() == 9  && v->getY() == 8  && v->getDirectie() == NORD) ||
+                                      (v->getX() == 10 && v->getY() == 11 && v->getDirectie() == SUD) ||
+                                      (v->getX() == 11 && v->getY() == 9  && v->getDirectie() == EST) ||
+                                      (v->getX() == 8  && v->getY() == 10 && v->getDirectie() == VEST);
+
+                bool poateInainta = true;
+
+                if (eLaLiniaDeStop) {
+                    if (v != celCareTrece) {
+                        poateInainta = false; 
+                    } else {
+                        ordineaTrecerii.push_back(v->getId());
+                        notifica(iteratie, "TRECERE", "Vehicul " + std::to_string(v->getId()) + " a patruns in intersectie.");
+                    }
+                } else if (pozitieOcupata(nextX, nextY)) {
+                    poateInainta = false; // Sistem de coada perfect: masina asteapta sa plece cea din fata ei
+                }
+
+                if (poateInainta) v->deplaseaza();
+
+                // NOUA REGULA DE STERGERE: Se sterge STRICT cand iese de pe ecran prin partea opusa
+                bool aIesit = false;
+                if (v->getDirectie() == NORD && v->getY() > 20) aIesit = true;
+                if (v->getDirectie() == SUD && v->getY() < 0) aIesit = true;
+                if (v->getDirectie() == EST && v->getX() < 0) aIesit = true;
+                if (v->getDirectie() == VEST && v->getX() > 20) aIesit = true;
+
+                if (aIesit) {
+                    it = vehicule.erase(it);
+                } else {
+                    ++it;
+                }
             }
         }
     }

@@ -10,7 +10,7 @@ void ruleazaTesteUnitare() {
     std::cout << "[TEST] Initiere teste unitare...\n";
 
     // Test 1: Validare deplasare vehicul
-    Masina m(999, EST, 5, 5);
+    Masina m(999, VEST, 5, 5);
     m.deplaseaza();
     assert(m.getX() == 6 && m.getY() == 5); // Trebuie sa se miste la dreapta pe axa X
 

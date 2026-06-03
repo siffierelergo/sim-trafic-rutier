@@ -6,7 +6,6 @@
 
 enum Directie { NORD = 0, EST = 1, SUD = 2, VEST = 3 };
 
-// --- CLASA ABSTRACTA ---
 class Vehicul {
 protected:
     int id;
@@ -20,53 +19,44 @@ public:
     
     virtual ~Vehicul() {}
 
-    // Metode virtuale pure (Polimorfism)
     virtual std::string getTip() const = 0;
     virtual void reactioneazaLaIntersectie(bool esteVerde) = 0;
 
-    // Gettere si Settere
+    // Gettere
     int getId() const { return id; }
-    int getViteza() const { return vitezaMaxima; }
     Directie getDirectie() const { return directie; }
     int getX() const { return pozitieX; }
     int getY() const { return pozitieY; }
+    int getViteza() const { return vitezaMaxima; } // <-- Aceasta era linia lipsa!
     
-    void setPozitie(int x, int y) { pozitieX = x; pozitieY = y; }
-    
+    // Logica de miscare cadru cu cadru
     void deplaseaza() {
-        if (directie == NORD) pozitieY--;
-        else if (directie == SUD) pozitieY++;
-        else if (directie == EST) pozitieX++;
-        else if (directie == VEST) pozitieX--;
+        if (directie == NORD) pozitieY++;      // Vine de sus, coboara
+        else if (directie == SUD) pozitieY--;  // Vine de jos, urca
+        else if (directie == EST) pozitieX--;  // Vine din dreapta, merge stanga
+        else if (directie == VEST) pozitieX++; // Vine din stanga, merge dreapta
     }
 };
 
-// --- CLASE DERIVATE ---
 class Masina : public Vehicul {
 public:
     Masina(int id, Directie dir, int x, int y) : Vehicul(id, 50, dir, x, y) {}
     std::string getTip() const override { return "Masina"; }
-    void reactioneazaLaIntersectie(bool esteVerde) override {
-        if (!esteVerde) std::cout << "[LOG] Masina " << id << " franeaza lin la rosu.\n";
-    }
+    void reactioneazaLaIntersectie(bool ok) override {}
 };
 
 class Motocicleta : public Vehicul {
 public:
     Motocicleta(int id, Directie dir, int x, int y) : Vehicul(id, 70, dir, x, y) {}
     std::string getTip() const override { return "Motocicleta"; }
-    void reactioneazaLaIntersectie(bool esteVerde) override {
-        if (!esteVerde) std::cout << "[LOG] Motocicleta " << id << " se opreste brusc.\n";
-    }
+    void reactioneazaLaIntersectie(bool ok) override {}
 };
 
 class Camion : public Vehicul {
 public:
     Camion(int id, Directie dir, int x, int y) : Vehicul(id, 30, dir, x, y) {}
     std::string getTip() const override { return "Camion"; }
-    void reactioneazaLaIntersectie(bool esteVerde) override {
-        if (!esteVerde) std::cout << "[LOG] Camionul " << id << " are inertie mare! Opreste lent.\n";
-    }
+    void reactioneazaLaIntersectie(bool ok) override {}
 };
 
 #endif

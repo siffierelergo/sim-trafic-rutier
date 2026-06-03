@@ -1,40 +1,27 @@
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[SEMAFOR] Culorile semafoarelor au fost alternate.
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[SEMAFOR] Culorile semafoarelor au fost alternate.
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[SEMAFOR] Culorile semafoarelor au fost alternate.
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[SEMAFOR] Culorile semafoarelor au fost alternate.
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[COLIZIUNE CRITICA] Vehiculul 1 s-a ciocnit cu 3!
-[SEMAFOR] Culorile semafoarelor au fost alternate.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
-[SEMAFOR] Schimbare de faza rutiere detectata automat.
+1,"TRECERE","Vehicul 1 a trecut (Semn: PRIORITATE)"
+1,"TRECERE","Vehicul 4 a trecut (Semn: PRIORITATE)"
+1,"TRECERE","Vehicul 2 a trecut (Semn: STOP)"
+1,"TRECERE","Vehicul 5 a trecut (Semn: STOP)"
+1,"TRECERE","Vehicul 3 a trecut (Semn: CEDEAZA)"
+2,"TRECERE","Vehicul 1 a trecut (Semn: PRIORITATE)"
+2,"TRECERE","Vehicul 4 a trecut (Semn: PRIORITATE)"
+2,"TRECERE","Vehicul 2 a trecut (Semn: PRIORITATE)"
+2,"TRECERE","Vehicul 5 a trecut (Semn: PRIORITATE)"
+2,"TRECERE","Vehicul 3 a trecut (Semn: CEDEAZA)"
+3,"TRECERE","Vehicul 1 a trecut (Semn: PRIORITATE)"
+3,"TRECERE","Vehicul 4 a trecut (Semn: PRIORITATE)"
+3,"TRECERE","Vehicul 2 a trecut (Semn: PRIORITATE)"
+3,"TRECERE","Vehicul 5 a trecut (Semn: PRIORITATE)"
+3,"TRECERE","Vehicul 3 a trecut (Semn: PRIORITATE)"
+4,"TRECERE","Vehicul 1 a trecut (Semn: CEDEAZA)"
+4,"TRECERE","Vehicul 4 a trecut (Semn: CEDEAZA)"
+4,"TRECERE","Vehicul 2 a trecut (Semn: STOP)"
+4,"TRECERE","Vehicul 5 a trecut (Semn: STOP)"
+4,"TRECERE","Vehicul 3 a trecut (Semn: CEDEAZA)"
+5,"TRECERE","Vehicul 1 a trecut (Semn: STOP)"
+5,"TRECERE","Vehicul 4 a trecut (Semn: STOP)"
+5,"TRECERE","Vehicul 2 a trecut (Semn: CEDEAZA)"
+5,"TRECERE","Vehicul 5 a trecut (Semn: CEDEAZA)"
+5,"TRECERE","Vehicul 3 a trecut (Semn: CEDEAZA)"
+1,"TRECERE","Vehicul 1 a patruns in intersectie."
+1,"TRECERE","Vehicul 2 a patruns in intersectie."
